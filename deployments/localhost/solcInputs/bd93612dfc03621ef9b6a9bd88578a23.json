@@ -1,0 +1,36 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/Library.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.13;\r\n\r\ncontract Library {\r\n    struct Book {\r\n        address ISBN; // Perubahan tipe data ISBN menjadi address\r\n        string title;\r\n        uint256 year;\r\n        string author;\r\n    }\r\n\r\n    Book[] private books;\r\n    address private admin;\r\n\r\n    struct Log {\r\n        string action;\r\n        address ISBN; // Juga perubahan tipe data ISBN menjadi address\r\n        bool success;\r\n    }\r\n\r\n    Log[] private logs;\r\n\r\n    constructor() {\r\n        admin = msg.sender;\r\n    }\r\n\r\n    modifier onlyAdmin() {\r\n        require(msg.sender == admin, \"Only admin can perform this operation\");\r\n        _;\r\n    }\r\n\r\n    function addBook(\r\n        address _ISBN, // Perubahan parameter _ISBN menjadi address\r\n        string calldata _title,\r\n        uint256 _year,\r\n        string calldata _author\r\n    ) public onlyAdmin {\r\n        require(_ISBN != address(0), \"ISBN cannot be empty\");\r\n        require(bytes(_title).length > 0, \"Title cannot be empty\");\r\n        require(_year > 0, \"Year must be greater than 0\");\r\n        require(bytes(_author).length > 0, \"Author cannot be empty\");\r\n\r\n        books.push(Book(_ISBN, _title, _year, _author));\r\n\r\n        // Tambahkan log operasi\r\n        logs.push(Log(\"Add Book\", _ISBN, true));\r\n    }\r\n\r\n    function updateBook(\r\n        address _ISBN, // Perubahan parameter _ISBN menjadi address\r\n        string calldata _title,\r\n        uint256 _year,\r\n        string calldata _author\r\n    ) public onlyAdmin {\r\n        require(_ISBN != address(0), \"ISBN cannot be empty\");\r\n        require(bytes(_title).length > 0, \"Title cannot be empty\");\r\n        require(_year > 0, \"Year must be greater than 0\");\r\n        require(bytes(_author).length > 0, \"Author cannot be empty\");\r\n\r\n        // Cari buku dengan ISBN yang sesuai dalam array\r\n        for (uint256 i = 0; i < books.length; i++) {\r\n            if (books[i].ISBN == _ISBN) { // Perubahan cara membandingkan ISBN\r\n                // Temukan buku yang sesuai, lalu perbarui detailnya\r\n                books[i] = Book(_ISBN, _title, _year, _author);\r\n\r\n                // Tambahkan log operasi\r\n                logs.push(Log(\"Update Book\", _ISBN, true));\r\n                return;\r\n            }\r\n        }\r\n\r\n        // Jika buku tidak ditemukan\r\n        logs.push(Log(\"Update Book\", _ISBN, false));\r\n        revert(\"Book with this ISBN does not exist\");\r\n    }\r\n\r\n    function removeBook(address _ISBN) public onlyAdmin { // Perubahan parameter _ISBN menjadi address\r\n        require(_ISBN != address(0), \"ISBN cannot be empty\");\r\n\r\n        // Cari buku dengan ISBN yang sesuai dalam array\r\n        for (uint256 i = 0; i < books.length; i++) {\r\n            if (books[i].ISBN == _ISBN) { // Perubahan cara membandingkan ISBN\r\n                // Temukan buku yang sesuai, lalu hapus\r\n                if (i < books.length - 1) {\r\n                    books[i] = books[books.length - 1];\r\n                }\r\n                books.pop();\r\n\r\n                // Tambahkan log operasi\r\n                logs.push(Log(\"Remove Book\", _ISBN, true));\r\n                return;\r\n            }\r\n        }\r\n\r\n        // Jika buku tidak ditemukan\r\n        logs.push(Log(\"Remove Book\", _ISBN, false));\r\n        revert(\"Book with this ISBN does not exist\");\r\n    }\r\n\r\n    function getBookByISBN(address _ISBN) // Perubahan parameter _ISBN menjadi address\r\n        public\r\n        view\r\n        returns (address, string memory, uint256, string memory)\r\n    {\r\n        for (uint256 i = 0; i < books.length; i++) {\r\n            if (books[i].ISBN == _ISBN) { // Perubahan cara membandingkan ISBN\r\n                Book memory book = books[i];\r\n                return (book.ISBN, book.title, book.year, book.author);\r\n            }\r\n        }\r\n\r\n        revert(\"Book with this ISBN does not exist\");\r\n    }\r\n\r\n    // Mendapatkan log operasi\r\n    function getLogs() public view returns (Log[] memory) {\r\n        return logs;\r\n    }\r\n\r\n    // Mendapatkan jumlah buku dalam perpustakaan\r\n    function getLibraryLength() public view returns (uint256) {\r\n        return books.length;\r\n    }\r\n}\r\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "evmVersion": "paris",
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
